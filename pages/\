@@ -1,0 +1,91 @@
+<template>
+  <main class="mainView">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      baseprofile="tiny"
+      fill="#ececec"
+      height="857"
+      stroke="black"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width=".2"
+      version="1.2"
+      viewbox="0 0 2000 857"
+      width="2000"
+      class="worldMap"
+    >
+     
+      <MapMarker class="MapMarker" :position="['50%', '50%']" />
+    </svg>
+  </main>
+</template>
+
+<script>
+import MapMarker from '../components/MapMarker.vue'
+export default {
+  name: 'App',
+  components: { MapMarker },
+  data() {
+    return {
+      topics: [],
+      sizeOfWorldMap: {
+        aspectRatio: Number(2000 / 857).toFixed(3),
+        width: '',
+        height: '',
+      },
+    }
+  },
+  computed: {
+    isRatioBiggerThenMap() {
+      const { aspectRatio, width, height } = { ...this.sizeOfWorldMap }
+      return aspectRatio > width / height
+    },
+    windowRatio() {
+      return this.sizeOfWorldMap.width / this.sizeOfWorldMap.height
+    },
+  },
+  async fetch() {
+    this.topics = await fetch('https://sandy.uber.space/items/topic')
+      .then((res) => res.json())
+      .then((topics) => topics.data)
+    this.worldmap = await fetch(
+      'https://simplemaps.com/static/demos/resources/svg-library/svgs/world.svg'
+    )
+      .then((res) => console.log(res.text()))
+      .then((svg) => console.log(svg))
+  },
+  created() {
+    this.addWindowHandler()
+  },
+  destroyed() {
+    this.removeWindowHandler()
+  },
+  methods: {
+    handleWindowResize() {
+      this.sizeOfWorldMap.width = window.innerWidth
+      this.sizeOfWorldMap.height = window.innerHeight
+    },
+    addWindowHandler() {
+      window.addEventListener('resize', this.handleWindowResize)
+      this.handleWindowResize()
+    },
+    removeWindowHandler() {
+      window.removeEventListener('resize', this.handleWindowResize)
+    },
+  },
+}
+</script>
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+.worldMap {
+  object-fit: contain;
+  width: 100vw;
+  height: 100vh;
+}
+.MapMarker {
+}
+</style>
